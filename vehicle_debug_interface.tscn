@@ -1,0 +1,107 @@
+[gd_scene load_steps=3 format=3 uid="uid://cc4pe4rq4fwtc"]
+
+[ext_resource type="Script" path="res://vehicle_debug_interface.gd" id="1_ljh3q"]
+[ext_resource type="Script" path="res://time_series_plot.gd" id="1_tjqjv"]
+
+[node name="vehicle_debug_interface" type="PanelContainer"]
+custom_minimum_size = Vector2(512, 256)
+offset_right = 128.0
+offset_bottom = 218.0
+script = ExtResource("1_ljh3q")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Throttle (%)"
+
+[node name="throttle_slider" type="HSlider" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = -1.0
+max_value = 1.0
+step = 0.01
+
+[node name="throttle_plot" type="Panel" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("1_tjqjv")
+data_range_lower = -100.0
+data_range_upper = 100.0
+
+[node name="Label3" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Brake (%)"
+
+[node name="brake_slider" type="HSlider" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+
+[node name="brake_plot" type="Panel" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("1_tjqjv")
+data_range_lower = 0.0
+data_range_upper = 100.0
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label2" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+text = "Steering (deg)"
+
+[node name="steering_slider" type="HSlider" parent="MarginContainer/HBoxContainer/VBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = -1.0
+max_value = 1.0
+step = 0.01
+
+[node name="steering_plot" type="Panel" parent="MarginContainer/HBoxContainer/VBoxContainer2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("1_tjqjv")
+data_range_lower = -45.0
+data_range_upper = 45.0
+
+[node name="Label4" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+text = "Speed (km/h)"
+
+[node name="speed_plot" type="Panel" parent="MarginContainer/HBoxContainer/VBoxContainer2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("1_tjqjv")
+data_range_lower = -200.0
+data_range_upper = 200.0
+
+[connection signal="drag_started" from="MarginContainer/HBoxContainer/VBoxContainer/throttle_slider" to="." method="_on_throttle_slider_drag_started"]
+[connection signal="value_changed" from="MarginContainer/HBoxContainer/VBoxContainer/throttle_slider" to="." method="_on_throttle_slider_value_changed"]
+[connection signal="drag_started" from="MarginContainer/HBoxContainer/VBoxContainer/brake_slider" to="." method="_on_throttle_slider_drag_started"]
+[connection signal="value_changed" from="MarginContainer/HBoxContainer/VBoxContainer/brake_slider" to="." method="_on_throttle_slider_value_changed"]
+[connection signal="value_changed" from="MarginContainer/HBoxContainer/VBoxContainer2/steering_slider" to="." method="_on_steering_slider_value_changed"]

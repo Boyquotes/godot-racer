@@ -1,0 +1,42 @@
+[gd_scene load_steps=8 format=3 uid="uid://ycmkuxand8r7"]
+
+[ext_resource type="Script" path="res://wheel.gd" id="1_ht6y4"]
+[ext_resource type="ArrayMesh" uid="uid://dr0mor0sn2ty8" path="res://assets/car/car_wheel.res" id="1_wp4l2"]
+[ext_resource type="AudioStream" uid="uid://bvrux2sxxqjhe" path="res://assets/car/tires_squal_loop.wav" id="2_bobl4"]
+[ext_resource type="Script" path="res://pacejka_94_longitudinal.gd" id="2_bqywy"]
+[ext_resource type="Script" path="res://pacejka_94_lateral.gd" id="3_txgav"]
+
+[sub_resource type="Resource" id="Resource_i3p6s"]
+script = ExtResource("2_bqywy")
+b0 = 1.5
+b2 = 1100.0
+b4 = 300.0
+b8 = -2.0
+
+[sub_resource type="Resource" id="Resource_yl3eq"]
+script = ExtResource("3_txgav")
+a0 = 1.4
+a2 = 1100.0
+a3 = 1100.0
+a4 = 10.0
+a7 = -2.0
+
+[node name="wheel" type="Node3D"]
+script = ExtResource("1_ht6y4")
+mass = 16.0
+spring_stiffness = 1.0
+pacejka_longitudinal = SubResource("Resource_i3p6s")
+pacejka_lateral = SubResource("Resource_yl3eq")
+
+[node name="hub" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.45, 0)
+
+[node name="mesh" type="MeshInstance3D" parent="hub"]
+transform = Transform3D(0.008, 0, 0, 0, 0.008, 0, 0, 0, 0.008, 0, 0, 0)
+mesh = ExtResource("1_wp4l2")
+skeleton = NodePath("../..")
+
+[node name="skid_sound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("2_bobl4")
+attenuation_model = 1
+pitch_scale = 0.75

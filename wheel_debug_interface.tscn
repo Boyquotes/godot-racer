@@ -1,0 +1,149 @@
+[gd_scene load_steps=5 format=3 uid="uid://blbs0vuwr3o8m"]
+
+[ext_resource type="Script" path="res://wheel_debug_interface.gd" id="1_d5pf6"]
+[ext_resource type="Script" path="res://time_series_plot.gd" id="2_g5chl"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_trp3b"]
+bg_color = Color(0.2, 0.2, 0.2, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4qc16"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.0859375, 0.0859375, 0.0859375, 0.501961)
+
+[node name="wheel_debug_interface" type="PanelContainer"]
+custom_minimum_size = Vector2(512, 512)
+offset_right = 354.0
+offset_bottom = 323.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_trp3b")
+script = ExtResource("1_d5pf6")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="TabContainer" type="TabContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/side_margin = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_4qc16")
+tab_alignment = 1
+
+[node name="Live" type="VBoxContainer" parent="MarginContainer/TabContainer"]
+layout_mode = 2
+
+[node name="Label4" type="Label" parent="MarginContainer/TabContainer/Live"]
+layout_mode = 2
+text = "Angular velocity (rad/s)"
+horizontal_alignment = 1
+
+[node name="angular_velocity_plot" type="Panel" parent="MarginContainer/TabContainer/Live"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("2_g5chl")
+data_range_lower = -40.0
+data_range_upper = 40.0
+
+[node name="Label" type="Label" parent="MarginContainer/TabContainer/Live"]
+layout_mode = 2
+text = "Slip ratio"
+horizontal_alignment = 1
+
+[node name="slip_ratio_plot" type="Panel" parent="MarginContainer/TabContainer/Live"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("2_g5chl")
+data_range_lower = -1.5
+data_range_upper = 1.5
+
+[node name="Label2" type="Label" parent="MarginContainer/TabContainer/Live"]
+layout_mode = 2
+text = "Slip angle (deg)"
+horizontal_alignment = 1
+
+[node name="slip_angle_plot" type="Panel" parent="MarginContainer/TabContainer/Live"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("2_g5chl")
+data_range_lower = -90.0
+data_range_upper = 90.0
+
+[node name="Label3" type="Label" parent="MarginContainer/TabContainer/Live"]
+layout_mode = 2
+text = "Tire load (N)"
+horizontal_alignment = 1
+
+[node name="tire_load_plot" type="Panel" parent="MarginContainer/TabContainer/Live"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("2_g5chl")
+data_range_lower = 1500.0
+data_range_upper = 3500.0
+
+[node name="Pacejka" type="VBoxContainer" parent="MarginContainer/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Label3" type="Label" parent="MarginContainer/TabContainer/Pacejka"]
+layout_mode = 2
+text = "Load"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/TabContainer/Pacejka"]
+layout_mode = 2
+
+[node name="pacejka_load_slider" type="HSlider" parent="MarginContainer/TabContainer/Pacejka/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="pacejka_load_spin_box" type="SpinBox" parent="MarginContainer/TabContainer/Pacejka/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+alignment = 2
+suffix = "N"
+select_all_on_focus = true
+
+[node name="Label" type="Label" parent="MarginContainer/TabContainer/Pacejka"]
+layout_mode = 2
+text = "Longitudinal"
+horizontal_alignment = 1
+
+[node name="pacejka_longitudinal_plot" type="Panel" parent="MarginContainer/TabContainer/Pacejka"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("2_g5chl")
+max_data_points = 100
+data_range_lower = 0.0
+data_range_upper = 4000.0
+
+[node name="Label2" type="Label" parent="MarginContainer/TabContainer/Pacejka"]
+layout_mode = 2
+text = "Lateral"
+horizontal_alignment = 1
+
+[node name="pacejka_lateral_plot" type="Panel" parent="MarginContainer/TabContainer/Pacejka"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("2_g5chl")
+max_data_points = 100
+data_range_lower = 0.0
+data_range_upper = 4000.0
+
+[connection signal="value_changed" from="MarginContainer/TabContainer/Pacejka/HBoxContainer/pacejka_load_slider" to="." method="_on_pacejka_load_slider_value_changed"]
+[connection signal="value_changed" from="MarginContainer/TabContainer/Pacejka/HBoxContainer/pacejka_load_spin_box" to="." method="_on_pacejka_load_spin_box_value_changed"]

@@ -1,0 +1,110 @@
+[gd_scene load_steps=13 format=3 uid="uid://i1f6gq4s7chp"]
+
+[ext_resource type="PackedScene" uid="uid://dntg3vs0p6w3" path="res://vehicle.tscn" id="2_k6l3l"]
+[ext_resource type="Texture2D" uid="uid://bvek65rh4552b" path="res://addons/kenney_prototype_textures/dark/texture_01.png" id="2_mhw31"]
+[ext_resource type="Script" path="res://camera_arm.gd" id="3_12pyd"]
+[ext_resource type="Texture2D" uid="uid://cneao41kh4ln6" path="res://addons/kenney_prototype_textures/orange/texture_01.png" id="4_ld122"]
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_alekx"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vp7sw"]
+albedo_texture = ExtResource("2_mhw31")
+uv1_triplanar = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ib611"]
+material = SubResource("StandardMaterial3D_vp7sw")
+size = Vector2(512, 512)
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_qwf5l"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_pkfej"]
+sky_material = SubResource("ProceduralSkyMaterial_qwf5l")
+
+[sub_resource type="Environment" id="Environment_fbnet"]
+background_mode = 2
+sky = SubResource("Sky_pkfej")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lpx2v"]
+albedo_texture = ExtResource("4_ld122")
+uv1_triplanar = true
+
+[sub_resource type="Curve3D" id="Curve3D_hdckt"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -15.4357, 0, 0.73225, 1.66348, 0, -9.98088, -1.66348, 0, 9.98088, -16.2469, 0, 31.869, -51.4758, 0, -43.894, 51.4758, 0, 43.894, 9.43087, 7.24658, 129.094, -29.5287, 0, 42.6969, 29.5287, 0, -42.6969, 153.483, -1.62524, 65.6467, 13.9663, 0, 72.2257, -13.9663, 0, -72.2257, 214.935, 4.10449, -96.3623, 71.7114, 0, -36.8649, -71.7114, 0, 36.8649, 60.7797, 8.79749, -203.653, 26.1041, 0, -41.9425, -26.1041, 0, 41.9425, 6.81174, 4.13525, -106.863, 0, 0, 0, 0, 0, 0, -15.178, 0, -28.969, 0, 0, 0, 0, 0, 0, -15.4357, 0, 0.73225),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 9
+
+[node name="sandbox" type="Node3D"]
+
+[node name="ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -8, 0)
+
+[node name="shape" type="CollisionShape3D" parent="ground"]
+shape = SubResource("WorldBoundaryShape3D_alekx")
+
+[node name="mesh" type="MeshInstance3D" parent="ground"]
+mesh = SubResource("PlaneMesh_ib611")
+
+[node name="sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+shadow_enabled = true
+
+[node name="environment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_fbnet")
+
+[node name="vehicle" parent="." instance=ExtResource("2_k6l3l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.25853, -7.67356, 2.5)
+
+[node name="camera_arm" type="Node3D" parent="vehicle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 8)
+script = ExtResource("3_12pyd")
+
+[node name="camera" type="Camera3D" parent="vehicle/camera_arm"]
+current = true
+
+[node name="camera2" type="Camera3D" parent="vehicle"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 8, 1, 0)
+current = true
+
+[node name="camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 50, 0)
+
+[node name="track_mesh" type="CSGPolygon3D" parent="."]
+use_collision = true
+polygon = PackedVector2Array(-8, -1, -8, 0, 8, 0, 8, -1)
+mode = 2
+path_node = NodePath("../track_path")
+path_interval_type = 0
+path_interval = 1.0
+path_simplify_angle = 0.0
+path_rotation = 2
+path_local = false
+path_continuous_u = true
+path_u_distance = 1.0
+path_joined = true
+material = SubResource("StandardMaterial3D_lpx2v")
+
+[node name="track_path" type="Path3D" parent="."]
+curve = SubResource("Curve3D_hdckt")
+
+[node name="overlay" type="CanvasLayer" parent="."]
+
+[node name="credits" type="Label" parent="overlay"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -375.0
+offset_top = -40.0
+offset_right = 375.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 0.501961)
+text = "\"Green Bug Stylized Scifi Car Free\" (https://skfb.ly/6WYHF) by ferofluid is licensed under CC-BY 4.0"

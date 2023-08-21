@@ -1,0 +1,148 @@
+[gd_scene load_steps=8 format=3 uid="uid://dntg3vs0p6w3"]
+
+[ext_resource type="Script" path="res://vehicle.gd" id="1_mqvxl"]
+[ext_resource type="ArrayMesh" uid="uid://8gb74cvoup4j" path="res://assets/car/car_body.res" id="2_yrkv2"]
+[ext_resource type="ArrayMesh" uid="uid://cptmfaq0ybwxf" path="res://assets/car/car_props.res" id="3_j3012"]
+[ext_resource type="PackedScene" uid="uid://ycmkuxand8r7" path="res://wheel.tscn" id="4_6ahjq"]
+[ext_resource type="PackedScene" uid="uid://blbs0vuwr3o8m" path="res://wheel_debug_interface.tscn" id="5_b1xu6"]
+[ext_resource type="PackedScene" uid="uid://cc4pe4rq4fwtc" path="res://vehicle_debug_interface.tscn" id="6_hx20q"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_f6mrb"]
+size = Vector3(2.51536, 1.65251, 4.79683)
+
+[node name="vehicle" type="RigidBody3D"]
+mass = 1000.0
+center_of_mass_mode = 1
+center_of_mass = Vector3(0, 0.5, 0)
+script = ExtResource("1_mqvxl")
+max_wheel_torque = 1000.0
+
+[node name="collision_shape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.03179, 0)
+shape = SubResource("BoxShape3D_f6mrb")
+
+[node name="body_meshes" type="Node3D" parent="."]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
+
+[node name="body" type="MeshInstance3D" parent="body_meshes"]
+transform = Transform3D(0.008, 0, 0, 0, 0.008, 0, 0, 0, 0.008, 0, 0, 0)
+mesh = ExtResource("2_yrkv2")
+skeleton = NodePath("../..")
+
+[node name="props" type="MeshInstance3D" parent="body_meshes"]
+transform = Transform3D(0.008, 0, 0, 0, 0.008, 0, 0, 0, 0.008, 0, 0, 0)
+mesh = ExtResource("3_j3012")
+skeleton = NodePath("../..")
+
+[node name="wheel_fl" parent="." instance=ExtResource("4_6ahjq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, -1.325)
+radius = 0.5
+spring_rest_length = 0.625
+spring_stiffness = 100000.0
+damping = 500000.0
+
+[node name="hub" parent="wheel_fl" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)
+
+[node name="mesh" parent="wheel_fl/hub" index="0"]
+transform = Transform3D(-0.008, 0, 0, 0, 0.008, 0, 0, 0, 0.008, 0, 0, 0)
+
+[node name="wheel_fr" parent="." instance=ExtResource("4_6ahjq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, -1.325)
+radius = 0.5
+spring_rest_length = 0.625
+spring_stiffness = 100000.0
+damping = 500000.0
+
+[node name="hub" parent="wheel_fr" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)
+
+[node name="mesh" parent="wheel_fr/hub" index="0"]
+transform = Transform3D(0.008, 0, 0, 0, 0.008, -6.99382e-10, 0, 6.99382e-10, 0.008, 0, 0, 0)
+
+[node name="wheel_rl" parent="." instance=ExtResource("4_6ahjq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, 1.325)
+radius = 0.5
+spring_rest_length = 0.625
+spring_stiffness = 100000.0
+damping = 500000.0
+
+[node name="hub" parent="wheel_rl" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)
+
+[node name="mesh" parent="wheel_rl/hub" index="0"]
+transform = Transform3D(-0.008, 0, 0, 0, 0.008, 0, 0, 0, 0.008, 0, 0, 0)
+
+[node name="wheel_rr" parent="." instance=ExtResource("4_6ahjq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1.325)
+radius = 0.5
+spring_rest_length = 0.625
+spring_stiffness = 100000.0
+damping = 500000.0
+
+[node name="hub" parent="wheel_rr" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)
+
+[node name="mesh" parent="wheel_rr/hub" index="0"]
+transform = Transform3D(0.008, 0, 0, 0, 0.008, -6.99382e-10, 0, 6.99382e-10, 0.008, 0, 0, 0)
+
+[node name="overlay" type="CanvasLayer" parent="."]
+
+[node name="wheel_ui_fl" parent="overlay" node_paths=PackedStringArray("wheel") instance=ExtResource("5_b1xu6")]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 320.0
+offset_bottom = 384.0
+wheel = NodePath("../../wheel_fl")
+
+[node name="wheel_ui_fr" parent="overlay" node_paths=PackedStringArray("wheel") instance=ExtResource("5_b1xu6")]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -320.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 384.0
+grow_horizontal = 0
+wheel = NodePath("../../wheel_fr")
+
+[node name="wheel_ui_rl" parent="overlay" node_paths=PackedStringArray("wheel") instance=ExtResource("5_b1xu6")]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -384.0
+offset_right = 320.0
+offset_bottom = -16.0
+grow_vertical = 0
+wheel = NodePath("../../wheel_rl")
+
+[node name="wheel_ui_rr" parent="overlay" node_paths=PackedStringArray("wheel") instance=ExtResource("5_b1xu6")]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -320.0
+offset_top = -384.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 0
+grow_vertical = 0
+wheel = NodePath("../../wheel_rr")
+
+[node name="vehicle_ui" parent="overlay" node_paths=PackedStringArray("vehicle") instance=ExtResource("6_hx20q")]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -64.0
+offset_top = 16.0
+offset_right = 64.0
+offset_bottom = 234.0
+grow_horizontal = 2
+vehicle = NodePath("../..")
+
+[editable path="wheel_fl"]
+[editable path="wheel_fr"]
+[editable path="wheel_rl"]
+[editable path="wheel_rr"]

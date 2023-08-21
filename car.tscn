@@ -1,0 +1,125 @@
+[gd_scene load_steps=8 format=3 uid="uid://gobch266on8y"]
+
+[ext_resource type="Script" path="res://car.gd" id="1_lcvko"]
+[ext_resource type="ArrayMesh" uid="uid://8gb74cvoup4j" path="res://assets/car/car_body.res" id="1_sebjk"]
+[ext_resource type="ArrayMesh" uid="uid://cptmfaq0ybwxf" path="res://assets/car/car_props.res" id="2_qpqru"]
+[ext_resource type="ArrayMesh" uid="uid://dr0mor0sn2ty8" path="res://assets/car/car_wheel.res" id="4_c6bkh"]
+[ext_resource type="AudioStream" uid="uid://bvrux2sxxqjhe" path="res://assets/car/tires_squal_loop.wav" id="5_a2klg"]
+[ext_resource type="AudioStream" uid="uid://crgkby5ji85dc" path="res://assets/car/421001__eponn__engine.ogg" id="5_c2kt7"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_uy2xd"]
+size = Vector3(2.51536, 1.65251, 4.79683)
+
+[node name="car" type="VehicleBody3D"]
+collision_layer = 2
+collision_mask = 3
+mass = 600.0
+center_of_mass_mode = 1
+center_of_mass = Vector3(0, 0.1, 0)
+can_sleep = false
+script = ExtResource("1_lcvko")
+
+[node name="collision_shape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.03179, 0)
+shape = SubResource("BoxShape3D_uy2xd")
+
+[node name="body_meshes" type="Node3D" parent="."]
+
+[node name="body" type="MeshInstance3D" parent="body_meshes"]
+transform = Transform3D(0.008, 0, 0, 0, 0.008, 0, 0, 0, 0.008, 0, 0, 0)
+mesh = ExtResource("1_sebjk")
+skeleton = NodePath("../..")
+
+[node name="props" type="MeshInstance3D" parent="body_meshes"]
+transform = Transform3D(0.008, 0, 0, 0, 0.008, 0, 0, 0, 0.008, 0, 0, 0)
+mesh = ExtResource("2_qpqru")
+skeleton = NodePath("../..")
+
+[node name="wheel_fl" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.5, 1.325)
+use_as_steering = true
+wheel_radius = 0.51
+wheel_rest_length = 0.063
+wheel_friction_slip = 8.0
+suspension_travel = 0.05
+suspension_stiffness = 125.0
+suspension_max_force = 15000.0
+damping_compression = 0.88
+damping_relaxation = 0.9
+
+[node name="mesh" type="MeshInstance3D" parent="wheel_fl"]
+transform = Transform3D(0.008, 0, 0, 0, 0.008, 0, 0, 0, 0.008, 0, 0, 0)
+mesh = ExtResource("4_c6bkh")
+
+[node name="skid_sound" type="AudioStreamPlayer3D" parent="wheel_fl"]
+stream = ExtResource("5_a2klg")
+attenuation_model = 1
+pitch_scale = 0.75
+
+[node name="wheel_fr" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.5, 1.325)
+use_as_steering = true
+wheel_radius = 0.51
+wheel_rest_length = 0.063
+wheel_friction_slip = 8.0
+suspension_travel = 0.05
+suspension_stiffness = 125.0
+suspension_max_force = 15000.0
+damping_compression = 0.88
+damping_relaxation = 0.9
+
+[node name="mesh" type="MeshInstance3D" parent="wheel_fr"]
+transform = Transform3D(-0.008, 0, 0, 0, 0.008, 0, 0, 0, 0.008, 0, 0, 0)
+mesh = ExtResource("4_c6bkh")
+
+[node name="skid_sound" type="AudioStreamPlayer3D" parent="wheel_fr"]
+stream = ExtResource("5_a2klg")
+attenuation_model = 1
+pitch_scale = 0.75
+
+[node name="wheel_rl" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.5, -1.325)
+use_as_traction = true
+wheel_radius = 0.51
+wheel_rest_length = 0.063
+wheel_friction_slip = 8.0
+suspension_travel = 0.05
+suspension_stiffness = 125.0
+suspension_max_force = 15000.0
+damping_compression = 0.88
+damping_relaxation = 0.9
+
+[node name="mesh" type="MeshInstance3D" parent="wheel_rl"]
+transform = Transform3D(0.008, 0, 0, 0, 0.008, 0, 0, 0, 0.008, 0, 0, 0)
+mesh = ExtResource("4_c6bkh")
+
+[node name="skid_sound" type="AudioStreamPlayer3D" parent="wheel_rl"]
+stream = ExtResource("5_a2klg")
+attenuation_model = 1
+pitch_scale = 0.75
+
+[node name="wheel_rr" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.5, -1.325)
+use_as_traction = true
+wheel_radius = 0.51
+wheel_rest_length = 0.063
+wheel_friction_slip = 8.0
+suspension_travel = 0.05
+suspension_stiffness = 125.0
+suspension_max_force = 15000.0
+damping_compression = 0.88
+damping_relaxation = 0.9
+
+[node name="mesh" type="MeshInstance3D" parent="wheel_rr"]
+transform = Transform3D(-0.008, 0, 0, 0, 0.008, 0, 0, 0, 0.008, 0, 0, 0)
+mesh = ExtResource("4_c6bkh")
+
+[node name="skid_sound" type="AudioStreamPlayer3D" parent="wheel_rr"]
+stream = ExtResource("5_a2klg")
+attenuation_model = 1
+pitch_scale = 0.75
+
+[node name="engine_sound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("5_c2kt7")
+attenuation_model = 1
+autoplay = true
