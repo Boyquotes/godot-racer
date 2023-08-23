@@ -55,10 +55,10 @@ data_range_upper = 40.0
 
 [node name="Label" type="Label" parent="MarginContainer/TabContainer/Live"]
 layout_mode = 2
-text = "Slip ratio"
+text = "Longitudinal slip velocity (m/s)"
 horizontal_alignment = 1
 
-[node name="slip_ratio_plot" type="Panel" parent="MarginContainer/TabContainer/Live"]
+[node name="slip_velocity_x_plot" type="Panel" parent="MarginContainer/TabContainer/Live"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
@@ -68,16 +68,16 @@ data_range_upper = 1.5
 
 [node name="Label2" type="Label" parent="MarginContainer/TabContainer/Live"]
 layout_mode = 2
-text = "Slip angle (deg)"
+text = "Lateral slip velocity (m/s)"
 horizontal_alignment = 1
 
-[node name="slip_angle_plot" type="Panel" parent="MarginContainer/TabContainer/Live"]
+[node name="slip_velocity_y_plot" type="Panel" parent="MarginContainer/TabContainer/Live"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 script = ExtResource("2_g5chl")
-data_range_lower = -90.0
-data_range_upper = 90.0
+data_range_lower = -1.5
+data_range_upper = 1.5
 
 [node name="Label3" type="Label" parent="MarginContainer/TabContainer/Live"]
 layout_mode = 2

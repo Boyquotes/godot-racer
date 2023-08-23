@@ -58,7 +58,7 @@ shadow_enabled = true
 environment = SubResource("Environment_fbnet")
 
 [node name="vehicle" parent="." instance=ExtResource("2_k6l3l")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.25853, -7.67356, 2.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.259, -7.875, 2.5)
 
 [node name="camera_arm" type="Node3D" parent="vehicle"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 8)
@@ -69,7 +69,6 @@ current = true
 
 [node name="camera2" type="Camera3D" parent="vehicle"]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 8, 1, 0)
-current = true
 
 [node name="camera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 50, 0)

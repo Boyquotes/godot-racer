@@ -15,7 +15,7 @@ mass = 1000.0
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, 0.5, 0)
 script = ExtResource("1_mqvxl")
-max_wheel_torque = 1000.0
+max_wheel_torque = 1500.0
 
 [node name="collision_shape" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.03179, 0)
@@ -38,8 +38,9 @@ skeleton = NodePath("../..")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, -1.325)
 radius = 0.5
 spring_rest_length = 0.625
-spring_stiffness = 100000.0
-damping = 500000.0
+spring_stiffness = 30000.0
+damping_compression = 830.0
+damping_relaxation = 880.0
 
 [node name="hub" parent="wheel_fl" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)
@@ -51,8 +52,9 @@ transform = Transform3D(-0.008, 0, 0, 0, 0.008, 0, 0, 0, 0.008, 0, 0, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, -1.325)
 radius = 0.5
 spring_rest_length = 0.625
-spring_stiffness = 100000.0
-damping = 500000.0
+spring_stiffness = 30000.0
+damping_compression = 830.0
+damping_relaxation = 880.0
 
 [node name="hub" parent="wheel_fr" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)
@@ -64,8 +66,9 @@ transform = Transform3D(0.008, 0, 0, 0, 0.008, -6.99382e-10, 0, 6.99382e-10, 0.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, 1.325)
 radius = 0.5
 spring_rest_length = 0.625
-spring_stiffness = 100000.0
-damping = 500000.0
+spring_stiffness = 30000.0
+damping_compression = 830.0
+damping_relaxation = 880.0
 
 [node name="hub" parent="wheel_rl" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)
@@ -77,8 +80,9 @@ transform = Transform3D(-0.008, 0, 0, 0, 0.008, 0, 0, 0, 0.008, 0, 0, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1.325)
 radius = 0.5
 spring_rest_length = 0.625
-spring_stiffness = 100000.0
-damping = 500000.0
+spring_stiffness = 30000.0
+damping_compression = 830.0
+damping_relaxation = 880.0
 
 [node name="hub" parent="wheel_rr" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)

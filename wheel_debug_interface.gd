@@ -11,9 +11,9 @@ const MAX_POINTS := 256
 
 @onready var _angular_velocity_plot : TimeSeriesPlot = %angular_velocity_plot
 
-@onready var _slip_ratio_plot : TimeSeriesPlot = %slip_ratio_plot
+@onready var _slip_velocity_x_plot : TimeSeriesPlot = %slip_velocity_x_plot
 
-@onready var _slip_angle_plot : TimeSeriesPlot = %slip_angle_plot
+@onready var _slip_velocity_y_plot : TimeSeriesPlot = %slip_velocity_y_plot
 
 @onready var _tire_load_plot : TimeSeriesPlot = %tire_load_plot
 
@@ -45,8 +45,10 @@ func _ready() -> void:
 
 func _physics_process(_delta : float) -> void:
 	_angular_velocity_plot.push_value(wheel.get_angular_velocity())
-	_slip_ratio_plot.push_value(wheel.get_slip_ratio())
-	_slip_angle_plot.push_value(rad_to_deg(wheel.get_slip_angle()))
+	#var slip_velocity := wheel.get_slip_velocity()
+	var slip_velocity := wheel.get_grip()
+	_slip_velocity_x_plot.push_value(slip_velocity.x)
+	_slip_velocity_y_plot.push_value(slip_velocity.y)
 	_tire_load_plot.push_value(wheel.get_tire_load())
 
 
@@ -63,8 +65,8 @@ func _plot_pacejka_longitudinal() -> void:
 	_pacejka_longitudinal_plot.data_range_upper = 1.25 * _pacejka_load
 
 	for i in _pacejka_longitudinal_plot.max_data_points:
-		var x := lerpf(0.0, 1.0, float(i) / (_pacejka_longitudinal_plot.max_data_points - 1))
-		var value := wheel.pacejka_longitudinal.evaluate(x, _pacejka_load)
+		var x := lerpf(0.0, 5.0, float(i) / (_pacejka_longitudinal_plot.max_data_points - 1))
+		var value := _pacejka_load * wheel.pacejka_combination.evaluate(Vector2(x, 0.0)).x
 		_pacejka_longitudinal_plot.push_value(value)
 
 
@@ -73,8 +75,8 @@ func _plot_pacejka_lateral() -> void:
 	_pacejka_lateral_plot.data_range_upper = 1.25 * _pacejka_load
 
 	for i in _pacejka_lateral_plot.max_data_points:
-		var x := lerpf(0.0, deg_to_rad(90.0), float(i) / (_pacejka_lateral_plot.max_data_points - 1))
-		var value := wheel.pacejka_lateral.evaluate(x, _pacejka_load)
+		var x := lerpf(0.0, PI, float(i) / (_pacejka_lateral_plot.max_data_points - 1))
+		var value := _pacejka_load * wheel.pacejka_combination.evaluate(Vector2(0.0, x)).y
 		_pacejka_lateral_plot.push_value(value)
 
 

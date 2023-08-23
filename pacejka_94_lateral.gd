@@ -27,5 +27,14 @@ func evaluate(slip_angle : float, tire_load : float) -> float:
 	var E := a7
 	var x := rad_to_deg(slip_angle)
 	var Bx := B * x
-	#print({ B = B, C = C, D = D, E = E })
 	return D * sin(C * atan(Bx - E * (Bx - atan(Bx))))
+
+
+func print_params(reference_load := 4000.0) -> void:
+	var Fz := reference_load / 1000.0
+	var C := a0
+	var D := Fz * a2
+	var BCD := a3 * sin(atan(Fz / a4) * 2.0)
+	var B := BCD / (C * D)
+	var E := a7
+	print({ B = B, C = C, D = D, E = E })

@@ -102,6 +102,4 @@ data_range_upper = 200.0
 
 [connection signal="drag_started" from="MarginContainer/HBoxContainer/VBoxContainer/throttle_slider" to="." method="_on_throttle_slider_drag_started"]
 [connection signal="value_changed" from="MarginContainer/HBoxContainer/VBoxContainer/throttle_slider" to="." method="_on_throttle_slider_value_changed"]
-[connection signal="drag_started" from="MarginContainer/HBoxContainer/VBoxContainer/brake_slider" to="." method="_on_throttle_slider_drag_started"]
-[connection signal="value_changed" from="MarginContainer/HBoxContainer/VBoxContainer/brake_slider" to="." method="_on_throttle_slider_value_changed"]
 [connection signal="value_changed" from="MarginContainer/HBoxContainer/VBoxContainer2/steering_slider" to="." method="_on_steering_slider_value_changed"]

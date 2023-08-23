@@ -10,7 +10,7 @@ extends RigidBody3D
 
 @export var max_steering_angle := deg_to_rad(35.0)
 
-@export var steering_speed := deg_to_rad(90.0)
+@export var steering_speed := deg_to_rad(45.0)
 
 @export var accept_throttle_input := true
 
@@ -43,8 +43,14 @@ func _physics_process(delta : float) -> void:
 
 
 func _integrate_forces(state : PhysicsDirectBodyState3D) -> void:
+	var total_load := 0.0
 	for wheel in _wheels:
-		wheel.update(state)
+		wheel.update_suspension(state)
+		total_load += wheel.get_tire_load()
+
+	for wheel in _wheels:
+		var supported_mass := wheel.get_tire_load() / total_load * mass
+		wheel.update_tire(state, supported_mass)
 
 
 func get_speed() -> float:
@@ -77,10 +83,12 @@ func _apply_input_to_tires() -> void:
 
 
 func _update_speed() -> void:
-	_speed = 0.0
-	for wheel in _rear_wheels:
-		_speed += wheel.get_angular_velocity() * wheel.radius
-	_speed /= _rear_wheels.size()
+	#_speed = 0.0
+	#for wheel in _rear_wheels:
+	#	_speed += wheel.get_angular_velocity() * wheel.radius
+	#_speed /= _rear_wheels.size()
+
+	_speed = linear_velocity.dot(-global_transform.basis.z)
 
 
 func _find_wheels() -> Array[Wheel]:

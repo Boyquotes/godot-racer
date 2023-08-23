@@ -25,5 +25,14 @@ func evaluate(slip_ratio : float, tire_load : float) -> float:
 	var E := b8
 	var x := slip_ratio * 100.0
 	var Bx := B * x
-	#print({ B = B, C = C, D = D, E = E })
 	return D * sin(C * atan(Bx - E * (Bx - atan(Bx))))
+
+
+func print_params(reference_load := 4000.0) -> void:
+	var Fz := reference_load / 1000.0
+	var C := b0
+	var D := Fz * b2
+	var BCD := b4 * Fz
+	var B := BCD / (C * D)
+	var E := b8
+	print({ B = B, C = C, D = D, E = E })

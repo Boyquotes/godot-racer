@@ -22,11 +22,11 @@ extends Node3D
 
 @export var spring_stiffness := 10.0
 
-@export var damping := 1.0
+@export var damping_compression := 0.83
 
-@export var pacejka_longitudinal : Pacejka94Longitudinal
+@export var damping_relaxation := 0.88
 
-@export var pacejka_lateral : Pacejka94Lateral
+@export var pacejka_combination : PacejkaCombination
 
 
 var torque := 0.0
@@ -44,9 +44,15 @@ var _spring_force := 0.0
 
 var _tire_load := 0.0
 
+var _supported_mass := 0.0
+
+var _slip_velocity := Vector2.ZERO
+
 var _slip_ratio := 0.0
 
 var _slip_angle := 0.0
+
+var _grip := Vector2.ZERO
 
 var _angular_velocity := 0.0
 
@@ -65,21 +71,24 @@ var _brake_torque := 0.0
 func _ready() -> void:
 	assert(global_transform.basis.get_scale() == Vector3.ONE)
 
+	pacejka_combination.normalize()
+
 	if Engine.is_editor_hint():
 		_update_in_editor()
 	else:
 		_hub.position.y = -spring_rest_length
 
 
-func update(vehicle_state : PhysicsDirectBodyState3D) -> void:
+func update_suspension(vehicle_state : PhysicsDirectBodyState3D) -> void:
 	_update_hub_position(vehicle_state)
-
 	_update_spring_force(vehicle_state)
 	_apply_spring_force(vehicle_state)
-	_apply_longitudinal_force(vehicle_state)
-	_apply_lateral_force(vehicle_state)
 
-	_update_rotation(vehicle_state)
+
+func update_tire(vehicle_state : PhysicsDirectBodyState3D, supported_mass : float) -> void:
+	_supported_mass = supported_mass
+	_apply_slip_forces(vehicle_state)
+	_update_visual_rotation(vehicle_state)
 
 
 func is_in_contact() -> bool:
@@ -90,12 +99,12 @@ func get_angular_velocity() -> float:
 	return _angular_velocity
 
 
-func get_slip_ratio() -> float:
-	return _slip_ratio
+func get_slip_velocity() -> Vector2:
+	return _slip_velocity
 
 
-func get_slip_angle() -> float:
-	return _slip_angle
+func get_grip() -> Vector2:
+	return _grip
 
 
 func get_tire_load() -> float:
@@ -106,81 +115,67 @@ func get_vehicle() -> RigidBody3D:
 	return _vehicle
 
 
-func _apply_longitudinal_force(vehicle_state : PhysicsDirectBodyState3D) -> void:
-	_brake_torque = -signf(_angular_velocity) * brake * max_brake_torque if not is_zero_approx(_angular_velocity) else 0.0
-	_angular_velocity += vehicle_state.step * (torque + _brake_torque) / inertia
-
-	if is_in_contact():
-		var contact_position : Vector3 = _ray_hit.position
-		var contact_normal : Vector3 = _ray_hit.normal
-
-		var lateral_direction := global_transform.basis.x
-		var longitudinal_direction := contact_normal.cross(lateral_direction).normalized()
-
-		var num_substeps := 4
-		var delta := vehicle_state.step / num_substeps
-		var total_traction_force := 0.0
-		for i in num_substeps:
-			_slip_ratio = _compute_slip_ratio()
-			var traction_force := pacejka_longitudinal.evaluate(_slip_ratio, _tire_load)
-			var traction_torque := traction_force * radius
-			_angular_velocity -= delta * traction_torque / inertia
-			total_traction_force += traction_force / num_substeps
-
-		vehicle_state.apply_force(
-			total_traction_force * longitudinal_direction,
-			contact_position - vehicle_state.transform.origin
-		)
-
-
-func _compute_slip_ratio() -> float:
+func _apply_slip_forces(vehicle_state : PhysicsDirectBodyState3D) -> void:
 	if not is_in_contact():
-		return signf(_angular_velocity)
-
-	var contact_normal : Vector3 = _ray_hit.normal
-	var lateral_direction := global_transform.basis.x
-	var longitudinal_direction := contact_normal.cross(lateral_direction).normalized()
-	var wheel_velocity := _angular_velocity * radius
-	var ground_velocity := _contact_velocity.dot(longitudinal_direction)
-	var slip_ratio := (
-		clampf((wheel_velocity - ground_velocity) / absf(ground_velocity), -1.0, 1.0)
-		if not is_zero_approx(ground_velocity) else
-		signf(wheel_velocity)
-	)
-	if ground_velocity < 5.0:
-		var optimal_slip_ratio := signf(slip_ratio) * 0.1
-		var interpolation_weight := clampf((5.0 - absf(ground_velocity)) / 2.0, 0.0, 1.0)
-		slip_ratio = lerpf(slip_ratio, optimal_slip_ratio, interpolation_weight)
-	return slip_ratio
-
-
-func _apply_lateral_force(vehicle_state : PhysicsDirectBodyState3D) -> void:
-	_slip_angle = _compute_slip_angle()
-	if is_zero_approx(_slip_angle):
+		_slip_velocity.x = 0.0
+		_slip_velocity.y = 0.0
+		_angular_velocity += vehicle_state.step * torque / inertia
 		return
 
-	var lateral_direction := global_transform.basis.x
-	var lateral_force := pacejka_lateral.evaluate(_slip_angle, _tire_load) * lateral_direction
-
 	var contact_position : Vector3 = _ray_hit.position
-	vehicle_state.apply_force(lateral_force, contact_position - vehicle_state.transform.origin)
-
-
-func _compute_slip_angle() -> float:
-	if not is_in_contact():
-		return 0.0
-
 	var contact_normal : Vector3 = _ray_hit.normal
 
 	var lateral_direction := global_transform.basis.x
 	var longitudinal_direction := contact_normal.cross(lateral_direction).normalized()
 
-	var lateral_velocity := _contact_velocity.dot(lateral_direction)
 	var longitudinal_velocity := _contact_velocity.dot(longitudinal_direction)
+	var lateral_velocity := _contact_velocity.dot(lateral_direction)
 
-	#var slip_angle := -atan2(lateral_velocity, longitudinal_velocity)
-	var slip_angle := -atan(lateral_velocity / longitudinal_velocity) if not is_zero_approx(longitudinal_velocity) else 0.0
-	return slip_angle
+	var num_substeps := 4
+	var delta := vehicle_state.step / num_substeps
+	var traction_force := Vector2.ZERO
+	for i in num_substeps:
+		_angular_velocity += delta * torque / inertia
+
+		_slip_velocity.x = longitudinal_velocity - _angular_velocity * radius
+		_slip_velocity.y = lateral_velocity
+
+		_slip_ratio = -_slip_velocity.x / maxf(0.001, longitudinal_velocity)
+		_slip_angle = -atan(lateral_velocity / longitudinal_velocity) if not is_zero_approx(longitudinal_velocity) else 0.0
+
+		#var friction := pacejka_combination.evaluate(_slip_velocity)
+		var friction := pacejka_combination.evaluate(Vector2(
+			_slip_ratio,
+			_slip_angle
+		), name == "wheel_rr")
+		var local_traction_force := _tire_load * friction
+
+		# calculate the resistive force limit that will not negate the sign of slip_velocity.x
+		var max_angular_deceleration := -_slip_velocity.x / (radius * delta)
+		var max_resistive_torque := max_angular_deceleration * inertia
+		var max_resistive_force := max_resistive_torque / radius
+
+		#var original_traction_force := local_traction_force.x
+
+		if local_traction_force.x / max_resistive_force > 1.0:
+			local_traction_force.x = max_resistive_force
+
+		traction_force += local_traction_force / num_substeps
+
+		#var original_angular_velocity := _angular_velocity
+
+		var resistive_torque := local_traction_force.x * radius
+		_angular_velocity -= delta * resistive_torque / inertia
+
+		#if name == "wheel_rr":
+		#	print("w: ", original_angular_velocity, " | u: ", longitudinal_velocity, " | F: ", original_traction_force, " | F_max: ", max_resistive_force, " | F_fin: ", local_traction_force.x, " | w_fin: ", _angular_velocity)
+
+	_grip = -traction_force / _tire_load
+	#if name == "wheel_rr":
+	#	print(torque, " / ", traction_force.x * radius)
+
+	var global_traction_force := traction_force.x * longitudinal_direction + traction_force.y * lateral_direction
+	vehicle_state.apply_force(global_traction_force, contact_position - vehicle_state.transform.origin)
 
 
 func _update_hub_position(vehicle_state : PhysicsDirectBodyState3D) -> void:
@@ -191,15 +186,15 @@ func _update_hub_position(vehicle_state : PhysicsDirectBodyState3D) -> void:
 
 	# apply gravity and spring force to wheel
 	var global_up := global_transform.basis.y
-	var gravity := vehicle_state.total_gravity.project(global_up)
+	var gravity := vehicle_state.total_gravity.dot(global_up)
 	# FIXME: applying the spring force results in large displacements causing the
 	#        wheel to oscillate between the bottom-out and contact positions;
 	#        use analytical solution of the mass-spring-damper system?
 	#        (https://en.wikipedia.org/wiki/Mass-spring-damper_model)
-	#var wheel_spring_force := -_spring_force * global_up
-	#var acceleration := gravity + wheel_spring_force / mass
+	#        /use multiple substeps?
+	#var acceleration := gravity - _spring_force / mass
 	var acceleration := gravity
-	_hub.global_position += vehicle_state.step * acceleration
+	_hub.position.y += vehicle_state.step * acceleration
 
 	var new_spring_length := clampf(-_hub.position.y, min_spring_length, max_spring_length)
 
@@ -212,12 +207,13 @@ func _update_hub_position(vehicle_state : PhysicsDirectBodyState3D) -> void:
 	_hub.position.y = -new_spring_length
 
 	# compute change in spring length
-	_spring_velocity = new_spring_length - original_spring_length
+	_spring_velocity = (new_spring_length - original_spring_length) / vehicle_state.step
 
 
 func _update_spring_force(vehicle_state : PhysicsDirectBodyState3D) -> void:
 	var new_spring_displacement := -_hub.position.y - spring_rest_length
 	_spring_force = -spring_stiffness * new_spring_displacement
+	var damping := damping_relaxation if _spring_velocity > 0.0 else damping_compression
 	_spring_force -= damping * _spring_velocity
 
 	_tire_load = _spring_force - mass * vehicle_state.total_gravity.dot(global_transform.basis.y)
@@ -228,7 +224,7 @@ func _apply_spring_force(vehicle_state : PhysicsDirectBodyState3D) -> void:
 	vehicle_state.apply_force(_spring_force * force_direction, global_position - vehicle_state.transform.origin)
 
 
-func _update_rotation(vehicle_state : PhysicsDirectBodyState3D) -> void:
+func _update_visual_rotation(vehicle_state : PhysicsDirectBodyState3D) -> void:
 	_hub.rotate_x(-vehicle_state.step * _angular_velocity)
 
 
@@ -250,17 +246,3 @@ func _create_ray_query() -> PhysicsRayQueryParameters3D:
 func _update_in_editor() -> void:
 	if Engine.is_editor_hint() and is_inside_tree():
 		_hub.position.y = -spring_rest_length - travel
-
-
-# @onready var _skid_sound : AudioStreamPlayer3D = $skid_sound
-#
-#
-# func _physics_process(_delta : float) -> void:
-# 	#var skid := 1.0 - get_skidinfo()
-# 	var skid := 0.0 # TODO
-# 	if skid > 0.2:
-# 		if not _skid_sound.playing:
-# 			_skid_sound.play()
-# 		_skid_sound.volume_db = linear_to_db(skid * skid)
-# 	elif _skid_sound.playing:
-# 		_skid_sound.stop()
